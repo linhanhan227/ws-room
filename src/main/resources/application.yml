@@ -1,0 +1,41 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: ws-room
+  datasource:
+    url: jdbc:sqlite:chat.db
+    driver-class-name: org.sqlite.JDBC
+  jpa:
+    database-platform: org.hibernate.community.dialect.SQLiteDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.community.dialect.SQLiteDialect
+  sql:
+    init:
+      mode: always
+  task:
+    execution:
+      pool:
+        core-size: 5
+        max-size: 10
+        queue-capacity: 100
+
+websocket:
+  path: /ws/chat
+  max-connections: 1000
+  heartbeat-interval: 30000
+
+jwt:
+  secret: your-secret-key-change-this-in-production-environment-at-least-256-bits-long
+  expiration: 604800000
+
+logging:
+  level:
+    com.chat: DEBUG
+    org.hibernate: WARN
