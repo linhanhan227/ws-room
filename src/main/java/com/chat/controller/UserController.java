@@ -23,6 +23,25 @@ public class UserController {
         this.userService = userService;
     }
 
+    @GetMapping
+    public ResponseEntity<?> getAllUsers() {
+        try {
+            List<User> users = userService.getAllUsers();
+            return ResponseEntity.ok(Map.of(
+                    "userCount", users.size(),
+                    "users", users.stream().map(user -> Map.of(
+                            "userId", user.getUserId(),
+                            "username", user.getUsername(),
+                            "isOnline", user.getOnline(),
+                            "isAdmin", user.getAdmin(),
+                            "isMuted", user.getMuted()
+                    )).toList()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody Map<String, String> request) {
         try {

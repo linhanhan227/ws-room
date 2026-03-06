@@ -58,6 +58,10 @@ public class UserService {
         return userRepository.findByIsOnlineTrue();
     }
 
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
     @Transactional
     public User login(String username, String password, String sessionId) {
         User user = userRepository.findByUsername(username)
