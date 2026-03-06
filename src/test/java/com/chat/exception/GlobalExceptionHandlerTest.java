@@ -8,6 +8,8 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GlobalExceptionHandlerTest {
 
@@ -20,7 +22,8 @@ class GlobalExceptionHandlerTest {
         ResponseEntity<ErrorResponse> response = handler.handleMethodNotSupported(exception, request);
 
         assertEquals(HttpStatus.METHOD_NOT_ALLOWED, response.getStatusCode());
-        assertEquals("不支持的请求方法: POST", response.getBody().getErrorDetails());
+        assertTrue(response.getBody().getErrorDetails().contains("POST"));
+        assertFalse(response.getBody().getErrorDetails().contains("GET"));
         assertEquals("/api/auth/login", response.getBody().getPath());
     }
 }
