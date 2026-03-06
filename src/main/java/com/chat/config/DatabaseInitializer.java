@@ -23,35 +23,28 @@ public class DatabaseInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (userRepository.count() == 0) {
-            log.info("初始化默认管理员账户...");
+        try {
+            long userCount = userRepository.count();
+            
+            if (userCount == 0) {
+                log.info("初始化默认管理员账户...");
 
-            User admin = new User.Builder()
-                    .userId(IdGenerator.generateNumericId())
-                    .username("admin")
-                    .password("a1653611988")
-                    .isOnline(false)
-                    .isAdmin(true)
-                    .isMuted(false)
-                    .build();
+                User admin = new User.Builder()
+                        .userId(IdGenerator.generateNumericId())
+                        .username("admin")
+                        .password("a1653611988")
+                        .isOnline(false)
+                        .isAdmin(true)
+                        .isMuted(false)
+                        .build();
 
-            userRepository.save(admin);
-            log.info("默认管理员账户创建成功 - 用户名: admin, 密码: admin123");
-/**
-            User guest = new User.Builder()
-                    .userId(IdGenerator.generateNumericId())
-                    .username("guest")
-                    .password(null)
-                    .isOnline(false)
-                    .isAdmin(false)
-                    .isMuted(false)
-                    .build();
+                userRepository.save(admin);
+                log.info("默认管理员账户创建成功 - 用户名: admin, 密码: a1653611988");
+            }
 
-            userRepository.save(guest);
-            log.info("默认访客账户创建成功 - 用户名: guest (无需密码)");
-            **/
+            log.info("数据库初始化完成，当前用户数: {}", userRepository.count());
+        } catch (Exception e) {
+            log.error("数据库初始化失败: {}", e.getMessage(), e);
         }
-
-        log.info("数据库初始化完成，当前用户数: {}", userRepository.count());
     }
 }
