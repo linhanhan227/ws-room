@@ -42,15 +42,14 @@ public class PrivateMessageService {
     }
 
     public List<PrivateMessage> getConversation(String userId1, String userId2, int limit) {
-        List<PrivateMessage> messages = privateMessageRepository.findBySenderIdAndReceiverIdOrderByCreateTimeDesc(userId1, userId2);
+        List<PrivateMessage> messages = privateMessageRepository.findConversationBothDirections(userId1, userId2);
         return messages.stream()
-                .filter(m -> !m.getIsRecalled())
                 .limit(limit)
                 .toList();
     }
 
     public List<PrivateMessage> getConversation(String userId1, String userId2) {
-        return privateMessageRepository.findBySenderIdAndReceiverIdAndIsRecalledFalseOrderByCreateTimeDesc(userId1, userId2);
+        return privateMessageRepository.findConversationBothDirections(userId1, userId2);
     }
 
     public List<PrivateMessage> getRecentMessages(String userId, int limit) {

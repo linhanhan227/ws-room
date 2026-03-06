@@ -53,6 +53,9 @@ public class RoomService {
                 .orElseThrow(() -> new RuntimeException("房间不存在"));
 
         if (name != null) {
+            if (!name.equals(room.getName()) && roomRepository.existsByName(name)) {
+                throw new RuntimeException("房间名称已存在");
+            }
             room.setName(name);
         }
         if (description != null) {

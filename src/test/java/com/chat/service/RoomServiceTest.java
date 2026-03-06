@@ -78,4 +78,20 @@ class RoomServiceTest {
 
         assertEquals("new-pass", updated.getPassword());
     }
+
+    @Test
+    void updateRoomShouldRejectDuplicateName() {
+        Room room = Room.builder()
+                .roomId("r1")
+                .name("room-a")
+                .build();
+
+        when(roomRepository.findByRoomId("r1")).thenReturn(Optional.of(room));
+        when(roomRepository.existsByName("room-b")).thenReturn(true);
+
+        RuntimeException ex = assertThrows(RuntimeException.class,
+                () -> roomService.updateRoom("r1", "room-b", null, null));
+
+        assertEquals("房间名称已存在", ex.getMessage());
+    }
 }
