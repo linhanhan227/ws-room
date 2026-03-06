@@ -117,7 +117,8 @@ public class RoomService {
             throw new RuntimeException("公开房间不能设置密码");
         }
 
-        if (oldPassword != null && !oldPassword.isEmpty() && !room.getPassword().equals(oldPassword)) {
+        String currentPassword = room.getPassword();
+        if (oldPassword != null && !oldPassword.isEmpty() && (currentPassword == null || !currentPassword.equals(oldPassword))) {
             throw new RuntimeException("旧密码错误");
         }
 

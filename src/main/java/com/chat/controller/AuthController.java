@@ -39,7 +39,7 @@ public class AuthController {
             throw new AuthenticationException(ErrorCode.AUTH_USERNAME_PASSWORD_ERROR);
         }
 
-        if (password != null && !password.isEmpty() && !user.getPassword().equals(password)) {
+        if (password == null || password.isEmpty() || !user.getPassword().equals(password)) {
             throw new AuthenticationException(ErrorCode.AUTH_USERNAME_PASSWORD_ERROR);
         }
 

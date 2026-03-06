@@ -171,7 +171,9 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         }
 
         if (room.getIsPrivate()) {
-            String password = msg.getContent();
+            String password = (msg.getPassword() != null && !msg.getPassword().isEmpty())
+                    ? msg.getPassword()
+                    : msg.getContent();
             if (!roomService.validateRoomPassword(roomId, password)) {
                 sendError(session, "房间密码错误");
                 return;
@@ -305,7 +307,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             String creator = user != null ? user.getUsername() : "系统";
 
             Room room = roomService.createRoom(name, creator, msg.getDescription(),
-                    msg.getMaxUsers(), msg.getIsPrivate(), msg.getContent());
+                    msg.getMaxUsers(), msg.getIsPrivate(), msg.getPassword());
 
             ChatMessage success = new ChatMessage.Builder()
                     .type(MessageType.SYSTEM)
