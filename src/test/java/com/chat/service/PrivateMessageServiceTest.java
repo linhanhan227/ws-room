@@ -11,6 +11,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -45,5 +48,29 @@ class PrivateMessageServiceTest {
         List<PrivateMessage> messages = privateMessageService.getConversation("u1", "u2");
 
         assertEquals(2, messages.size());
+    }
+
+    @Test
+    void getConversationWithLimitShouldUseRepositoryPaging() {
+        PrivateMessage aToB = PrivateMessage.builder()
+                .senderId("u1")
+                .receiverId("u2")
+                .isRecalled(false)
+                .build();
+
+        when(privateMessageRepository.findConversationBothDirections(eq("u1"), eq("u2"), any()))
+                .thenReturn(List.of(aToB));
+
+        List<PrivateMessage> messages = privateMessageService.getConversation("u1", "u2", 1);
+
+        assertEquals(1, messages.size());
+    }
+
+    @Test
+    void getConversationWithNonPositiveLimitShouldReturnEmpty() {
+        List<PrivateMessage> messages = privateMessageService.getConversation("u1", "u2", 0);
+
+        assertEquals(0, messages.size());
+        verifyNoInteractions(privateMessageRepository);
     }
 }

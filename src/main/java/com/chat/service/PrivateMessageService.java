@@ -4,6 +4,7 @@ import com.chat.model.PrivateMessage;
 import com.chat.repository.PrivateMessageRepository;
 import com.chat.util.IdGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,10 +43,10 @@ public class PrivateMessageService {
     }
 
     public List<PrivateMessage> getConversation(String userId1, String userId2, int limit) {
-        List<PrivateMessage> messages = privateMessageRepository.findConversationBothDirections(userId1, userId2);
-        return messages.stream()
-                .limit(limit)
-                .toList();
+        if (limit <= 0) {
+            return List.of();
+        }
+        return privateMessageRepository.findConversationBothDirections(userId1, userId2, PageRequest.of(0, limit));
     }
 
     public List<PrivateMessage> getConversation(String userId1, String userId2) {
