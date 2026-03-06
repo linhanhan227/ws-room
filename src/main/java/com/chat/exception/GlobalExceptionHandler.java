@@ -241,7 +241,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ErrorResponse> handleMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
-        log.warn("不支持的请求方法: {} - {}", request.getMethod(), request.getRequestURI());
+        log.warn("不支持的请求方法: {} - {}", ex.getMethod(), request.getRequestURI());
         
         ErrorResponse response = ErrorResponse.builder()
                 .errorCode("NF_003")
