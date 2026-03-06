@@ -12,6 +12,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,5 +43,39 @@ class RoomServiceTest {
                 () -> roomService.updatePassword("r1", "old-pass", "new-pass"));
 
         assertEquals("旧密码错误", ex.getMessage());
+    }
+
+    @Test
+    void updatePasswordShouldRejectMismatchedOldPassword() {
+        Room room = Room.builder()
+                .roomId("r1")
+                .name("test")
+                .isPrivate(true)
+                .password("current-pass")
+                .build();
+
+        when(roomRepository.findByRoomId("r1")).thenReturn(Optional.of(room));
+
+        RuntimeException ex = assertThrows(RuntimeException.class,
+                () -> roomService.updatePassword("r1", "wrong-pass", "new-pass"));
+
+        assertEquals("旧密码错误", ex.getMessage());
+    }
+
+    @Test
+    void updatePasswordShouldBypassValidationWithEmptyOldPassword() {
+        Room room = Room.builder()
+                .roomId("r1")
+                .name("test")
+                .isPrivate(true)
+                .password("current-pass")
+                .build();
+
+        when(roomRepository.findByRoomId("r1")).thenReturn(Optional.of(room));
+        when(roomRepository.save(any(Room.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Room updated = roomService.updatePassword("r1", "", "new-pass");
+
+        assertEquals("new-pass", updated.getPassword());
     }
 }

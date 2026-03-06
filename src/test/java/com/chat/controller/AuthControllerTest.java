@@ -49,7 +49,37 @@ class AuthControllerTest {
     }
 
     @Test
-    void loginShouldUsePasswordFieldForAuthentication() {
+    void loginShouldRejectWrongPassword() {
+        User user = User.builder()
+                .userId("u1")
+                .username("test")
+                .password("secret")
+                .isAdmin(false)
+                .build();
+
+        when(userService.getUserByUsername("test")).thenReturn(Optional.of(user));
+
+        assertThrows(AuthenticationException.class, () ->
+                authController.login(Map.of("username", "test", "password", "wrong")));
+    }
+
+    @Test
+    void loginShouldRejectWhenStoredPasswordIsNull() {
+        User user = User.builder()
+                .userId("u1")
+                .username("test")
+                .password(null)
+                .isAdmin(false)
+                .build();
+
+        when(userService.getUserByUsername("test")).thenReturn(Optional.of(user));
+
+        assertThrows(AuthenticationException.class, () ->
+                authController.login(Map.of("username", "test", "password", "secret")));
+    }
+
+    @Test
+    void loginShouldSucceedWithCorrectCredentials() {
         User user = User.builder()
                 .userId("u1")
                 .username("test")
