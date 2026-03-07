@@ -100,7 +100,9 @@ public class AuthController {
             throw new AuthenticationException(ErrorCode.AUTH_TOKEN_INVALID);
         }
 
+        String userId = jwtUtil.getUserIdFromToken(token);
         String username = jwtUtil.getUsernameFromToken(token);
+        jwtUtil.invalidateAllTokensForUser(userId);
 
         return ResponseEntity.ok(Map.of(
                 "message", "退出登录成功",

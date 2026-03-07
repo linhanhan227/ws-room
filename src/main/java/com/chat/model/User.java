@@ -32,6 +32,9 @@ public class User {
     @Column(nullable = false)
     private Boolean isMuted = false;
 
+    @Column(nullable = false)
+    private Long tokenVersion = 0L;
+
     private LocalDateTime mutedUntil;
 
     private LocalDateTime joinTime;
@@ -129,6 +132,14 @@ public class User {
         this.mutedUntil = mutedUntil;
     }
 
+    public Long getTokenVersion() {
+        return tokenVersion;
+    }
+
+    public void setTokenVersion(Long tokenVersion) {
+        this.tokenVersion = tokenVersion;
+    }
+
     public LocalDateTime getJoinTime() {
         return joinTime;
     }
@@ -167,6 +178,7 @@ public class User {
         if (isOnline == null) isOnline = false;
         if (isAdmin == null) isAdmin = false;
         if (isMuted == null) isMuted = false;
+        if (tokenVersion == null) tokenVersion = 0L;
         if (joinTime == null) joinTime = LocalDateTime.now();
     }
 
@@ -219,6 +231,11 @@ public class User {
 
         public Builder mutedUntil(LocalDateTime mutedUntil) {
             user.setMutedUntil(mutedUntil);
+            return this;
+        }
+
+        public Builder tokenVersion(Long tokenVersion) {
+            user.setTokenVersion(tokenVersion);
             return this;
         }
 

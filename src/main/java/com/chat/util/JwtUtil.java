@@ -1,7 +1,10 @@
 package com.chat.util;
 
+import com.chat.model.User;
+import com.chat.repository.UserRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +15,13 @@ import java.util.Map;
 
 @Component
 public class JwtUtil {
+
+    private final UserRepository userRepository;
+
+    @Autowired
+    public JwtUtil(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Value("${jwt.secret}")
     private String secret;
@@ -29,6 +39,7 @@ public class JwtUtil {
         claims.put("userId", userId);
         claims.put("username", username);
         claims.put("isAdmin", isAdmin);
+        claims.put("tokenVersion", getCurrentTokenVersion(userId));
         return createToken(claims, userId);
     }
 
@@ -74,11 +85,20 @@ public class JwtUtil {
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parser()
+            Claims claims = Jwts.parser()
                     .verifyWith(getSigningKey())
                     .build()
-                    .parseSignedClaims(token);
+                    .parseSignedClaims(token)
+                    .getPayload();
+            String userId = claims.getSubject();
+            if (isTokenVersionMismatch(userId, claims)) {
+                invalidateAllTokensForUser(userId);
+                return false;
+            }
             return true;
+        } catch (ExpiredJwtException e) {
+            invalidateAllTokensForUser(getSubject(e.getClaims()));
+            return false;
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
@@ -91,5 +111,36 @@ public class JwtUtil {
         }
         Date expiration = claims.getExpiration();
         return expiration.before(new Date());
+    }
+
+    public void invalidateAllTokensForUser(String userId) {
+        if (userId == null || userId.isBlank()) {
+            return;
+        }
+        userRepository.findByUserId(userId).ifPresent(user -> {
+            long currentVersion = user.getTokenVersion() == null ? 0L : user.getTokenVersion();
+            user.setTokenVersion(currentVersion + 1);
+            userRepository.save(user);
+        });
+    }
+
+    private long getCurrentTokenVersion(String userId) {
+        return userRepository.findByUserId(userId)
+                .map(User::getTokenVersion)
+                .map(version -> version == null ? 0L : version)
+                .orElse(0L);
+    }
+
+    private boolean isTokenVersionMismatch(String userId, Claims claims) {
+        long tokenVersion = 0L;
+        Object rawVersion = claims.get("tokenVersion");
+        if (rawVersion instanceof Number) {
+            tokenVersion = ((Number) rawVersion).longValue();
+        }
+        return tokenVersion != getCurrentTokenVersion(userId);
+    }
+
+    private String getSubject(Claims claims) {
+        return claims == null ? null : claims.getSubject();
     }
 }

@@ -20,6 +20,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -127,5 +128,17 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.errorDetails").value("请使用POST /api/auth/login并在请求体中提交用户名和密码"));
 
         verifyNoInteractions(userService, jwtUtil);
+    }
+
+    @Test
+    void logoutShouldInvalidateAllUserTokens() {
+        when(jwtUtil.validateToken("token")).thenReturn(true);
+        when(jwtUtil.getUserIdFromToken("token")).thenReturn("u1");
+        when(jwtUtil.getUsernameFromToken("token")).thenReturn("test");
+
+        ResponseEntity<?> response = authController.logout("Bearer token");
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(Map.of("message", "退出登录成功", "username", "test"), response.getBody());
+        verify(jwtUtil).invalidateAllTokensForUser("u1");
     }
 }
