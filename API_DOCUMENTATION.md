@@ -40,6 +40,11 @@
 }
 ```
 
+**GET 请求说明（仅返回“请使用 POST”的提示，不执行登录）**:
+```http
+GET /api/auth/login
+```
+
 **响应示例**:
 ```json
 {
@@ -169,6 +174,11 @@ Authorization: Bearer <token>
   "username": "admin",
   "password": "admin123"
 }
+```
+
+**GET 请求说明（仅返回“请使用 POST”的提示，不执行登录）**:
+```http
+GET /api/auth/login
 ```
 
 **响应示例**:

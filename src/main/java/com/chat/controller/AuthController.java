@@ -7,6 +7,7 @@ import com.chat.model.User;
 import com.chat.service.UserService;
 import com.chat.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,9 +28,19 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> request) {
-        String username = request.get("username");
-        String password = request.get("password");
+        return doLogin(request.get("username"), request.get("password"));
+    }
 
+    @GetMapping("/login")
+    public ResponseEntity<?> getLoginUsageHint() {
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(Map.of(
+                "errorCode", "HTTP_405",
+                "errorMessage", "登录仅支持POST请求",
+                "errorDetails", "请使用POST /api/auth/login并在请求体中提交用户名和密码"
+        ));
+    }
+
+    private ResponseEntity<?> doLogin(String username, String password) {
         if (username == null || username.isEmpty()) {
             throw new ParameterException(ErrorCode.PARAM_EMPTY, "用户名不能为空");
         }
