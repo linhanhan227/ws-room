@@ -64,7 +64,7 @@ public class MessageController {
 
     @GetMapping("/room/{roomId}/recent")
     public ResponseEntity<?> getRecentMessages(@PathVariable String roomId,
-                                             @RequestParam(defaultValue = "50") int limit) {
+                                             @RequestParam(defaultValue = "10") int limit) {
         try {
             List<Message> messages = messageService.getRecentMessages(roomId, limit);
             return ResponseEntity.ok(Map.of(
