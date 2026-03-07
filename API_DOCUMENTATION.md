@@ -30,7 +30,7 @@
 
 首先通过登录接口获取 Token：
 
-**登录接口**: `POST /api/auth/login`
+**登录接口**: `POST /api/auth/login`（推荐）或 `GET /api/auth/login`
 
 **请求示例**:
 ```json
@@ -38,6 +38,11 @@
   "username": "admin",
   "password": "admin123"
 }
+```
+
+**GET 请求示例**:
+```
+GET /api/auth/login?username=admin&password=admin123
 ```
 
 **响应示例**:
@@ -161,7 +166,7 @@ Authorization: Bearer <token>
 
 首先通过登录接口获取 Token：
 
-**登录接口**: `POST /api/auth/login`
+**登录接口**: `POST /api/auth/login`（推荐）或 `GET /api/auth/login`
 
 **请求示例**:
 ```json
@@ -169,6 +174,11 @@ Authorization: Bearer <token>
   "username": "admin",
   "password": "admin123"
 }
+```
+
+**GET 请求示例**:
+```
+GET /api/auth/login?username=admin&password=admin123
 ```
 
 **响应示例**:

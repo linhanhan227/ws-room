@@ -27,9 +27,16 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> request) {
-        String username = request.get("username");
-        String password = request.get("password");
+        return doLogin(request.get("username"), request.get("password"));
+    }
 
+    @GetMapping("/login")
+    public ResponseEntity<?> login(@RequestParam(required = false) String username,
+                                   @RequestParam(required = false) String password) {
+        return doLogin(username, password);
+    }
+
+    private ResponseEntity<?> doLogin(String username, String password) {
         if (username == null || username.isEmpty()) {
             throw new ParameterException(ErrorCode.PARAM_EMPTY, "用户名不能为空");
         }
