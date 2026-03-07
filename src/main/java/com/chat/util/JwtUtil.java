@@ -91,13 +91,17 @@ public class JwtUtil {
                     .parseSignedClaims(token)
                     .getPayload();
             String userId = claims.getSubject();
-            if (isTokenVersionMismatch(userId, claims)) {
-                invalidateAllTokensForUser(userId);
+            long tokenVersion = getTokenVersion(claims);
+            long currentVersion = getCurrentTokenVersion(userId);
+            if (tokenVersion != currentVersion) {
                 return false;
             }
             return true;
         } catch (ExpiredJwtException e) {
-            invalidateAllTokensForUser(getSubject(e.getClaims()));
+            Claims claims = e.getClaims();
+            if (claims != null) {
+                invalidateAllTokensForUserIfVersionMatches(claims.getSubject(), getTokenVersion(claims));
+            }
             return false;
         } catch (JwtException | IllegalArgumentException e) {
             return false;
@@ -114,11 +118,18 @@ public class JwtUtil {
     }
 
     public void invalidateAllTokensForUser(String userId) {
+        invalidateAllTokensForUserIfVersionMatches(userId, null);
+    }
+
+    private void invalidateAllTokensForUserIfVersionMatches(String userId, Long expectedVersion) {
         if (userId == null || userId.isBlank()) {
             return;
         }
         userRepository.findByUserId(userId).ifPresent(user -> {
             long currentVersion = user.getTokenVersion() == null ? 0L : user.getTokenVersion();
+            if (expectedVersion != null && expectedVersion != currentVersion) {
+                return;
+            }
             user.setTokenVersion(currentVersion + 1);
             userRepository.save(user);
         });
@@ -131,16 +142,14 @@ public class JwtUtil {
                 .orElse(0L);
     }
 
-    private boolean isTokenVersionMismatch(String userId, Claims claims) {
-        long tokenVersion = 0L;
+    private long getTokenVersion(Claims claims) {
+        if (claims == null) {
+            return 0L;
+        }
         Object rawVersion = claims.get("tokenVersion");
         if (rawVersion instanceof Number) {
-            tokenVersion = ((Number) rawVersion).longValue();
+            return ((Number) rawVersion).longValue();
         }
-        return tokenVersion != getCurrentTokenVersion(userId);
-    }
-
-    private String getSubject(Claims claims) {
-        return claims == null ? null : claims.getSubject();
+        return 0L;
     }
 }
