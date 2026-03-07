@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -17,6 +19,8 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -102,41 +106,26 @@ class AuthControllerTest {
     }
 
     @Test
-    void getLoginShouldSucceedWithCorrectCredentials() {
-        User user = User.builder()
-                .userId("u1")
-                .username("test")
-                .password("secret")
-                .isAdmin(false)
-                .build();
-
-        when(userService.getUserByUsername("test")).thenReturn(Optional.of(user));
-        when(jwtUtil.generateToken("u1", "test", false)).thenReturn("token");
-
-        Object response = authController.login("test", "secret").getBody();
-        assertEquals(Map.of("message", "登录成功", "token", "token", "userId", "u1", "username", "test", "isAdmin", false), response);
+    void getLoginUsageHintShouldReturnMethodNotAllowed() {
+        ResponseEntity<?> responseEntity = authController.getLoginUsageHint();
+        assertEquals(HttpStatus.METHOD_NOT_ALLOWED, responseEntity.getStatusCode());
+        Object response = responseEntity.getBody();
+        assertNotNull(response);
+        assertEquals(Map.of(
+                "errorCode", "HTTP_405",
+                "errorMessage", "登录仅支持POST请求",
+                "errorDetails", "请使用POST /api/auth/login并在请求体中提交用户名和密码"
+        ), response);
     }
 
     @Test
-    void getLoginEndpointShouldReturnSuccess() throws Exception {
-        User user = User.builder()
-                .userId("u1")
-                .username("test")
-                .password("secret")
-                .isAdmin(false)
-                .build();
+    void getLoginEndpointShouldReturn405WithUsageHint() throws Exception {
+        mockMvc.perform(get("/api/auth/login"))
+                .andExpect(status().isMethodNotAllowed())
+                .andExpect(jsonPath("$.errorCode").value("HTTP_405"))
+                .andExpect(jsonPath("$.errorMessage").value("登录仅支持POST请求"))
+                .andExpect(jsonPath("$.errorDetails").value("请使用POST /api/auth/login并在请求体中提交用户名和密码"));
 
-        when(userService.getUserByUsername("test")).thenReturn(Optional.of(user));
-        when(jwtUtil.generateToken("u1", "test", false)).thenReturn("token");
-
-        mockMvc.perform(get("/api/auth/login")
-                        .param("username", "test")
-                        .param("password", "secret"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("登录成功"))
-                .andExpect(jsonPath("$.token").value("token"))
-                .andExpect(jsonPath("$.userId").value("u1"))
-                .andExpect(jsonPath("$.username").value("test"))
-                .andExpect(jsonPath("$.isAdmin").value(false));
+        verifyNoInteractions(userService, jwtUtil);
     }
 }
