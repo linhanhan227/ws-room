@@ -243,6 +243,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ErrorResponse> handleMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
         String requestMethod = StringUtils.hasText(request.getMethod()) ? request.getMethod() : ex.getMethod();
+        if (!StringUtils.hasText(requestMethod)) {
+            requestMethod = "UNKNOWN";
+        }
         log.warn("不支持的请求方法: {} - {}", requestMethod, request.getRequestURI());
         
         ErrorResponse response = ErrorResponse.builder()
