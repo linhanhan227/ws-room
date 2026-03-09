@@ -2,12 +2,15 @@ package com.chat.config;
 
 import com.chat.model.User;
 import com.chat.repository.UserRepository;
+import com.chat.service.UserService;
 import com.chat.util.IdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+
+import java.util.concurrent.ThreadLocalRandom;
 
 @Component
 public class DatabaseInitializer implements CommandLineRunner {
@@ -36,6 +39,7 @@ public class DatabaseInitializer implements CommandLineRunner {
                         .isOnline(false)
                         .isAdmin(true)
                         .isMuted(false)
+                        .avatar(UserService.DEFAULT_AVATARS.get(ThreadLocalRandom.current().nextInt(UserService.DEFAULT_AVATARS.size())))
                         .build();
 
                 userRepository.save(admin);

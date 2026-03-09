@@ -150,9 +150,13 @@ Authorization: Bearer <token>
 {
   "message": "用户注册成功",
   "userId": "1234567890",
-  "username": "testuser"
+  "username": "testuser",
+  "avatar": "http://api.tos.tiecode.org.cn/xxx.jpg",
+  "signature": null
 }
 ```
+
+> 注册时系统会从默认头像池中随机分配头像，用户可后续通过资料接口自行修改。
 
 **错误响应**:
 ```json
@@ -456,7 +460,9 @@ Authorization: Bearer <token>
   "isOnline": true,
   "isAdmin": false,
   "isMuted": false,
-  "roomId": "9876543210"
+  "roomId": "9876543210",
+  "avatar": "http://api.tos.tiecode.org.cn/xxx.jpg",
+  "signature": "这是我的个性签名"
 }
 ```
 
@@ -478,7 +484,9 @@ Authorization: Bearer <token>
   "username": "testuser",
   "isOnline": true,
   "isAdmin": false,
-  "isMuted": false
+  "isMuted": false,
+  "avatar": "http://api.tos.tiecode.org.cn/xxx.jpg",
+  "signature": "这是我的个性签名"
 }
 ```
 
@@ -504,7 +512,9 @@ Authorization: Bearer <token>
       "username": "testuser",
       "isOnline": true,
       "isAdmin": false,
-      "isMuted": false
+      "isMuted": false,
+      "avatar": "http://api.tos.tiecode.org.cn/xxx.jpg",
+      "signature": "这是我的个性签名"
     }
   ]
 }
@@ -527,7 +537,9 @@ Authorization: Bearer <token>
       "userId": "1234567890",
       "username": "testuser",
       "isAdmin": false,
-      "isMuted": false
+      "isMuted": false,
+      "avatar": "http://api.tos.tiecode.org.cn/xxx.jpg",
+      "signature": "这是我的个性签名"
     }
   ]
 }
