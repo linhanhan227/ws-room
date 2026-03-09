@@ -58,4 +58,13 @@ class MessageControllerTest {
 
         verify(messageService).getRecentMessages("r1", 10);
     }
+
+    @Test
+    void getMessagesByRoomShouldReturnFallbackErrorWhenExceptionMessageIsNull() throws Exception {
+        when(messageService.getMessagesByRoom("r1")).thenThrow(new RuntimeException());
+
+        mockMvc.perform(get("/api/messages/room/r1"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("请求处理失败"));
+    }
 }
