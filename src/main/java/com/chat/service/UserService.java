@@ -2,27 +2,18 @@ package com.chat.service;
 
 import com.chat.model.User;
 import com.chat.repository.UserRepository;
+import com.chat.util.DefaultAvatarUtil;
 import com.chat.util.IdGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 public class UserService {
-
-    public static final List<String> DEFAULT_AVATARS = Arrays.asList(
-            "http://api.tos.tiecode.org.cn/fbd3b2ceda35a3cf/%E5%B0%8F%E7%BA%A2%E4%B9%A6_12627_%E5%93%88%E5%93%88%E5%93%88%E5%93%88%E5%93%88%E6%80%8E%E4%B9%88%E8%B6%8A%E7%9C%8B%E8%B6%8A%E5%8F%AF%E7%88%B1__%E5%BD%93%E4%BD%A0%E9%9C%80%E8%A6%81%E4%B8%80%E5%BC%A0%E4%B8%AA%E6%80%A7%E5%8D%81%E8%B6%B3%E7%9A%84%E5%A4%B4%E5%83%8F%E6%97%B6%E8%BF%99%E6%AC%BE%E5%A4%B4%E5%83%8F%E6%80%BB%E8%83%BD%E6%BB%A1%E8%B6%B3%E4%BD%A0%E7%9A%84%E9%9C%80%E6%B1%82%E6%97%A0%E8%AE%BA%E6%98%AF%E5%A4%B8__8.jpg",
-            "http://api.tos.tiecode.org.cn/84eec5035fc56f16/%E5%B0%8F%E7%BA%A2%E4%B9%A6_19285_%E4%B8%80%E8%BE%88%E5%AD%90%E4%B8%8D%E7%94%A8%E6%8D%A2%E7%9A%84%E5%BE%AE%E4%BF%A1%E5%A4%B4%E5%83%8F__%E6%83%B3%E7%9C%8B%E7%9C%8B%E4%BD%A0%E7%94%A8%E4%BA%86%E5%BE%88%E4%B9%85%E7%9A%84%E5%BE%AE%E4%BF%A1%E5%A4%B4%E5%83%8F%E8%AF%9D%E9%A2%98%E5%B0%8F%E4%BC%97%E5%A4%B4%E5%83%8F%E8%AF%9D%E9%A2%98_17.jpg",
-            "http://api.tos.tiecode.org.cn/e59d4766d8a7a386/%E5%B0%8F%E7%BA%A2%E4%B9%A6_12627_%E5%93%88%E5%93%88%E5%93%88%E5%93%88%E5%93%88%E6%80%8E%E4%B9%88%E8%B6%8A%E7%9C%8B%E8%B6%8A%E5%8F%AF%E7%88%B1__%E5%BD%93%E4%BD%A0%E9%9C%80%E8%A6%81%E4%B8%80%E5%BC%A0%E4%B8%AA%E6%80%A7%E5%8D%81%E8%B6%B3%E7%9A%84%E5%A4%B4%E5%83%8F%E6%97%B6%E8%BF%99%E6%AC%BE%E5%A4%B4%E5%83%8F%E6%80%BB%E8%83%BD%E6%BB%A1%E8%B6%B3%E4%BD%A0%E7%9A%84%E9%9C%80%E6%B1%82%E6%97%A0%E8%AE%BA%E6%98%AF%E5%A4%B8__7.jpg",
-            "http://api.tos.tiecode.org.cn/9c822e34a51bac3a/%E5%B0%8F%E7%BA%A2%E4%B9%A6_55442_%E6%B0%B8%E4%B9%85%E4%B8%8D%E6%8D%A2%E7%9A%84%E5%BE%AE%E4%BF%A1%E5%A4%B4%E5%83%8F__%E6%83%B3%E7%9C%8B%E7%9C%8B%E4%BD%A0%E7%94%A8%E4%BA%86%E5%BE%88%E4%B9%85%E7%9A%84%E5%BE%AE%E4%BF%A1%E5%A4%B4%E5%83%8F%E8%AF%9D%E9%A2%98%E4%BC%98%E8%B4%A8%E5%A4%B4%E5%83%8F%E8%AF%9D%E9%A2%98%E4%B8%AA%E6%80%A7%E5%A4%B4%E5%83%8F%E8%AF%9D%E9%A2%98%E5%A4%B4%E5%83%8F%E6%8E%A8%E8%8D%90%E8%AF%9D%E9%A2%98__9.jpg",
-            "http://api.tos.tiecode.org.cn/2af85fcbc028cd25/%E5%B0%8F%E7%BA%A2%E4%B9%A6_55442_%E6%B0%B8%E4%B9%85%E4%B8%8D%E6%8D%A2%E7%9A%84%E5%BE%AE%E4%BF%A1%E5%A4%B4%E5%83%8F__%E6%83%B3%E7%9C%8B%E7%9C%8B%E4%BD%A0%E7%94%A8%E4%BA%86%E5%BE%88%E4%B9%85%E7%9A%84%E5%BE%AE%E4%BF%A1%E5%A4%B4%E5%83%8F%E8%AF%9D%E9%A2%98%E4%BC%98%E8%B4%A8%E5%A4%B4%E5%83%8F%E8%AF%9D%E9%A2%98%E4%B8%AA%E6%80%A7%E5%A4%B4%E5%83%8F%E8%AF%9D%E9%A2%98%E5%A4%B4%E5%83%8F%E6%8E%A8%E8%8D%90%E8%AF%9D%E9%A2%98__3.jpg"
-    );
 
     private final UserRepository userRepository;
     private final ConcurrentHashMap<String, User> onlineUsers = new ConcurrentHashMap<>();
@@ -46,14 +37,10 @@ public class UserService {
                 .isAdmin(false)
                 .isMuted(false)
                 .joinTime(LocalDateTime.now())
-                .avatar(randomDefaultAvatar())
+                .avatar(DefaultAvatarUtil.randomDefaultAvatar())
                 .build();
 
         return userRepository.save(user);
-    }
-
-    public String randomDefaultAvatar() {
-        return DEFAULT_AVATARS.get(ThreadLocalRandom.current().nextInt(DEFAULT_AVATARS.size()));
     }
 
     public Optional<User> getUserById(String userId) {
