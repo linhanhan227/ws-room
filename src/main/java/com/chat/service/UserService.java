@@ -2,6 +2,7 @@ package com.chat.service;
 
 import com.chat.model.User;
 import com.chat.repository.UserRepository;
+import com.chat.util.DefaultAvatarUtil;
 import com.chat.util.IdGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,7 +11,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -37,6 +37,7 @@ public class UserService {
                 .isAdmin(false)
                 .isMuted(false)
                 .joinTime(LocalDateTime.now())
+                .avatar(DefaultAvatarUtil.randomDefaultAvatar())
                 .build();
 
         return userRepository.save(user);

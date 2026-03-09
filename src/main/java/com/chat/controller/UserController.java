@@ -34,7 +34,9 @@ public class UserController {
                             "username", user.getUsername(),
                             "isOnline", user.getOnline(),
                             "isAdmin", user.getAdmin(),
-                            "isMuted", user.getMuted()
+                            "isMuted", user.getMuted(),
+                            "avatar", user.getAvatar(),
+                            "signature", user.getSignature()
                     )).toList()
             ));
         } catch (Exception e) {
@@ -56,7 +58,9 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
                     "message", "用户注册成功",
                     "userId", user.getUserId(),
-                    "username", user.getUsername()
+                    "username", user.getUsername(),
+                    "avatar", user.getAvatar(),
+                    "signature", user.getSignature()
             ));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
@@ -73,7 +77,9 @@ public class UserController {
                             "isOnline", user.getOnline(),
                             "isAdmin", user.getAdmin(),
                             "isMuted", user.getMuted(),
-                            "roomId", user.getRoomId()
+                            "roomId", user.getRoomId(),
+                            "avatar", user.getAvatar(),
+                            "signature", user.getSignature()
                     )))
                     .orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
@@ -90,7 +96,9 @@ public class UserController {
                             "username", user.getUsername(),
                             "isOnline", user.getOnline(),
                             "isAdmin", user.getAdmin(),
-                            "isMuted", user.getMuted()
+                            "isMuted", user.getMuted(),
+                            "avatar", user.getAvatar(),
+                            "signature", user.getSignature()
                     )))
                     .orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
@@ -110,7 +118,9 @@ public class UserController {
                             "username", user.getUsername(),
                             "isOnline", user.getOnline(),
                             "isAdmin", user.getAdmin(),
-                            "isMuted", user.getMuted()
+                            "isMuted", user.getMuted(),
+                            "avatar", user.getAvatar(),
+                            "signature", user.getSignature()
                     )).toList()
             ));
         } catch (Exception e) {
@@ -128,7 +138,9 @@ public class UserController {
                             "userId", user.getUserId(),
                             "username", user.getUsername(),
                             "isAdmin", user.getAdmin(),
-                            "isMuted", user.getMuted()
+                            "isMuted", user.getMuted(),
+                            "avatar", user.getAvatar(),
+                            "signature", user.getSignature()
                     )).toList()
             ));
         } catch (Exception e) {

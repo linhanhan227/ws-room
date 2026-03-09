@@ -2,6 +2,7 @@ package com.chat.config;
 
 import com.chat.model.User;
 import com.chat.repository.UserRepository;
+import com.chat.util.DefaultAvatarUtil;
 import com.chat.util.IdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,7 @@ public class DatabaseInitializer implements CommandLineRunner {
                         .isOnline(false)
                         .isAdmin(true)
                         .isMuted(false)
+                        .avatar(DefaultAvatarUtil.randomDefaultAvatar())
                         .build();
 
                 userRepository.save(admin);
