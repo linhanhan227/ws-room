@@ -2,7 +2,7 @@
 
 > 文档依据源码控制器与拦截器整理（`src/main/java/com/chat/controller`、`com/chat/interceptor/AuthInterceptor`、`com/chat/config/WebMvcConfig`）。
 > 
-> 本文档仅描述 **HTTP REST API**。WebSocket 协议请参考 `/home/runner/work/ws-room/ws-room/WEBSOCKET_DOCUMENTATION.md`。
+> 本文档仅描述 **HTTP REST API**。WebSocket 协议请参考仓库根目录下的 `WEBSOCKET_DOCUMENTATION.md`。
 
 ---
 
@@ -418,7 +418,8 @@ Authorization: Bearer <token>
 }
 ```
 
-> `startTime` / `endTime` 需为 `LocalDateTime.parse` 可识别格式（如 `yyyy-MM-ddTHH:mm:ss`）。
+> `startTime` / `endTime` 需为 ISO-8601 本地时间格式（`LocalDateTime.parse` 默认格式），例如 `yyyy-MM-ddTHH:mm:ss`。
+> 说明：`LocalDateTime` 不包含时区信息，服务端按运行环境 JVM 的系统默认时区解释传入值。
 
 ---
 
