@@ -15,6 +15,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
+    private static final String USER_ID_PATTERN = "^\\d{1,38}$";
 
     private final UserService userService;
 
@@ -70,6 +71,9 @@ public class UserController {
     @GetMapping("/{userId}")
     public ResponseEntity<?> getUserById(@PathVariable String userId) {
         try {
+            if (!userId.matches(USER_ID_PATTERN)) {
+                return ResponseEntity.badRequest().body(Map.of("error", "用户ID格式无效"));
+            }
             return userService.getUserById(userId)
                     .map(user -> ResponseEntity.ok(Map.of(
                             "userId", user.getUserId(),
