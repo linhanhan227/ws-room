@@ -14,16 +14,30 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class GlobalExceptionHandlerTest {
 
     @Test
-    void handleMethodNotSupportedShouldUseMethodFromException() throws Exception {
+    void handleMethodNotSupportedShouldUseMethodFromRequest() throws Exception {
         GlobalExceptionHandler handler = new GlobalExceptionHandler();
-        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/auth/login");
+        MockHttpServletRequest request = new MockHttpServletRequest("PUT", "/api/auth/login");
+        HttpRequestMethodNotSupportedException exception = new HttpRequestMethodNotSupportedException("GET");
+
+        ResponseEntity<ErrorResponse> response = handler.handleMethodNotSupported(exception, request);
+
+        assertEquals(HttpStatus.METHOD_NOT_ALLOWED, response.getStatusCode());
+        assertTrue(response.getBody().getErrorDetails().contains("PUT"));
+        assertFalse(response.getBody().getErrorDetails().contains("GET"));
+        assertEquals("/api/auth/login", response.getBody().getPath());
+    }
+
+    @Test
+    void handleMethodNotSupportedShouldFallbackToExceptionMethodWhenRequestMethodMissing() throws Exception {
+        GlobalExceptionHandler handler = new GlobalExceptionHandler();
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/api/auth/login");
         HttpRequestMethodNotSupportedException exception = new HttpRequestMethodNotSupportedException("POST");
 
         ResponseEntity<ErrorResponse> response = handler.handleMethodNotSupported(exception, request);
 
         assertEquals(HttpStatus.METHOD_NOT_ALLOWED, response.getStatusCode());
         assertTrue(response.getBody().getErrorDetails().contains("POST"));
-        assertFalse(response.getBody().getErrorDetails().contains("GET"));
         assertEquals("/api/auth/login", response.getBody().getPath());
     }
 }
