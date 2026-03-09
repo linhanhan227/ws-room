@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,17 +25,7 @@ public class MessageController {
     public ResponseEntity<?> getMessageById(@PathVariable String messageId) {
         try {
             return messageService.getMessageById(messageId)
-                    .map(message -> ResponseEntity.ok(Map.of(
-                            "messageId", message.getMessageId(),
-                            "roomId", message.getRoomId(),
-                            "senderId", message.getSenderId(),
-                            "senderName", message.getSenderName(),
-                            "content", message.getContent(),
-                            "type", message.getType(),
-                            "isRecalled", message.getIsRecalled(),
-                            "recallTime", message.getRecallTime(),
-                            "createTime", message.getCreateTime()
-                    )))
+                    .map(message -> ResponseEntity.ok(toMessageDetailResponse(message)))
                     .orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
@@ -48,14 +39,7 @@ public class MessageController {
             return ResponseEntity.ok(Map.of(
                     "roomId", roomId,
                     "messageCount", messages.size(),
-                    "messages", messages.stream().map(message -> Map.of(
-                            "messageId", message.getMessageId(),
-                            "senderId", message.getSenderId(),
-                            "senderName", message.getSenderName(),
-                            "content", message.getContent(),
-                            "type", message.getType(),
-                            "createTime", message.getCreateTime()
-                    )).toList()
+                    "messages", messages.stream().map(this::toMessageSummaryResponse).toList()
             ));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
@@ -71,14 +55,7 @@ public class MessageController {
                     "roomId", roomId,
                     "limit", limit,
                     "messageCount", messages.size(),
-                    "messages", messages.stream().map(message -> Map.of(
-                            "messageId", message.getMessageId(),
-                            "senderId", message.getSenderId(),
-                            "senderName", message.getSenderName(),
-                            "content", message.getContent(),
-                            "type", message.getType(),
-                            "createTime", message.getCreateTime()
-                    )).toList()
+                    "messages", messages.stream().map(this::toMessageSummaryResponse).toList()
             ));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
@@ -95,12 +72,14 @@ public class MessageController {
             }
 
             return messageService.recallMessage(messageId, userId)
-                    .map(message -> ResponseEntity.ok(Map.of(
-                            "message", "消息撤回成功",
-                            "messageId", message.getMessageId(),
-                            "isRecalled", message.getIsRecalled(),
-                            "recallTime", message.getRecallTime()
-                    )))
+                    .map(message -> {
+                        Map<String, Object> response = new HashMap<>();
+                        response.put("message", "消息撤回成功");
+                        response.put("messageId", message.getMessageId());
+                        response.put("isRecalled", message.getIsRecalled());
+                        response.put("recallTime", message.getRecallTime());
+                        return ResponseEntity.ok(response);
+                    })
                     .orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
@@ -133,25 +112,48 @@ public class MessageController {
                     .limit(limit)
                     .toList();
 
-            return ResponseEntity.ok(Map.of(
-                    "keyword", keyword,
-                    "roomId", roomId,
-                    "senderId", senderId,
-                    "totalCount", messages.size(),
-                    "returnedCount", limitedMessages.size(),
-                    "limit", limit,
-                    "messages", limitedMessages.stream().map(message -> Map.of(
-                            "messageId", message.getMessageId(),
-                            "roomId", message.getRoomId(),
-                            "senderId", message.getSenderId(),
-                            "senderName", message.getSenderName(),
-                            "content", message.getContent(),
-                            "type", message.getType(),
-                            "createTime", message.getCreateTime()
-                    )).toList()
-            ));
+            Map<String, Object> response = new HashMap<>();
+            response.put("keyword", keyword);
+            response.put("roomId", roomId);
+            response.put("senderId", senderId);
+            response.put("totalCount", messages.size());
+            response.put("returnedCount", limitedMessages.size());
+            response.put("limit", limit);
+            response.put("messages", limitedMessages.stream().map(this::toMessageWithRoomResponse).toList());
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
         }
+    }
+
+    private Map<String, Object> toMessageDetailResponse(Message message) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("messageId", message.getMessageId());
+        response.put("roomId", message.getRoomId());
+        response.put("senderId", message.getSenderId());
+        response.put("senderName", message.getSenderName());
+        response.put("content", message.getContent());
+        response.put("type", message.getType());
+        response.put("isRecalled", message.getIsRecalled());
+        response.put("recallTime", message.getRecallTime());
+        response.put("createTime", message.getCreateTime());
+        return response;
+    }
+
+    private Map<String, Object> toMessageSummaryResponse(Message message) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("messageId", message.getMessageId());
+        response.put("senderId", message.getSenderId());
+        response.put("senderName", message.getSenderName());
+        response.put("content", message.getContent());
+        response.put("type", message.getType());
+        response.put("createTime", message.getCreateTime());
+        return response;
+    }
+
+    private Map<String, Object> toMessageWithRoomResponse(Message message) {
+        Map<String, Object> response = toMessageSummaryResponse(message);
+        response.put("roomId", message.getRoomId());
+        return response;
     }
 }

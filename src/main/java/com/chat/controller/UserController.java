@@ -31,15 +31,7 @@ public class UserController {
             List<User> users = userService.getAllUsers();
             return ResponseEntity.ok(Map.of(
                     "userCount", users.size(),
-                    "users", users.stream().map(user -> Map.of(
-                            "userId", user.getUserId(),
-                            "username", user.getUsername(),
-                            "isOnline", user.getOnline(),
-                            "isAdmin", user.getAdmin(),
-                            "isMuted", user.getMuted(),
-                            "avatar", user.getAvatar(),
-                            "signature", user.getSignature()
-                    )).toList()
+                    "users", users.stream().map(this::toUserSummaryResponse).toList()
             ));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
@@ -57,13 +49,13 @@ public class UserController {
             }
 
             User user = userService.createUser(username, password);
-            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
-                    "message", "用户注册成功",
-                    "userId", user.getUserId(),
-                    "username", user.getUsername(),
-                    "avatar", user.getAvatar(),
-                    "signature", user.getSignature()
-            ));
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "用户注册成功");
+            response.put("userId", user.getUserId());
+            response.put("username", user.getUsername());
+            response.put("avatar", user.getAvatar());
+            response.put("signature", user.getSignature());
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
         }
@@ -98,15 +90,7 @@ public class UserController {
     public ResponseEntity<?> getUserByUsername(@PathVariable String username) {
         try {
             return userService.getUserByUsername(username)
-                    .map(user -> ResponseEntity.ok(Map.of(
-                            "userId", user.getUserId(),
-                            "username", user.getUsername(),
-                            "isOnline", user.getOnline(),
-                            "isAdmin", user.getAdmin(),
-                            "isMuted", user.getMuted(),
-                            "avatar", user.getAvatar(),
-                            "signature", user.getSignature()
-                    )))
+                    .map(user -> ResponseEntity.ok(toUserSummaryResponse(user)))
                     .orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
@@ -120,15 +104,7 @@ public class UserController {
             return ResponseEntity.ok(Map.of(
                     "roomId", roomId,
                     "userCount", users.size(),
-                    "users", users.stream().map(user -> Map.of(
-                            "userId", user.getUserId(),
-                            "username", user.getUsername(),
-                            "isOnline", user.getOnline(),
-                            "isAdmin", user.getAdmin(),
-                            "isMuted", user.getMuted(),
-                            "avatar", user.getAvatar(),
-                            "signature", user.getSignature()
-                    )).toList()
+                    "users", users.stream().map(this::toUserSummaryResponse).toList()
             ));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
@@ -141,14 +117,7 @@ public class UserController {
             List<User> users = userService.getOnlineUsers();
             return ResponseEntity.ok(Map.of(
                     "userCount", users.size(),
-                    "users", users.stream().map(user -> Map.of(
-                            "userId", user.getUserId(),
-                            "username", user.getUsername(),
-                            "isAdmin", user.getAdmin(),
-                            "isMuted", user.getMuted(),
-                            "avatar", user.getAvatar(),
-                            "signature", user.getSignature()
-                    )).toList()
+                    "users", users.stream().map(this::toOnlineUserResponse).toList()
             ));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
@@ -190,13 +159,13 @@ public class UserController {
             }
 
             User user = userService.muteUser(userId, java.time.LocalDateTime.now().plusMinutes(minutes));
-            return ResponseEntity.ok(Map.of(
-                    "message", "用户已被禁言",
-                    "userId", user.getUserId(),
-                    "username", user.getUsername(),
-                    "isMuted", user.getMuted(),
-                    "mutedUntil", user.getMutedUntil()
-            ));
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "用户已被禁言");
+            response.put("userId", user.getUserId());
+            response.put("username", user.getUsername());
+            response.put("isMuted", user.getMuted());
+            response.put("mutedUntil", user.getMutedUntil());
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
         }
@@ -230,11 +199,11 @@ public class UserController {
 
             String avatar = body.get("avatar");
             User user = userService.updateAvatar(userId, avatar);
-            return ResponseEntity.ok(Map.of(
-                    "message", "头像已更新",
-                    "userId", user.getUserId(),
-                    "avatar", user.getAvatar()
-            ));
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "头像已更新");
+            response.put("userId", user.getUserId());
+            response.put("avatar", user.getAvatar());
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
         }
@@ -251,11 +220,11 @@ public class UserController {
 
             String signature = body.get("signature");
             User user = userService.updateSignature(userId, signature);
-            return ResponseEntity.ok(Map.of(
-                    "message", "个性签名已更新",
-                    "userId", user.getUserId(),
-                    "signature", user.getSignature()
-            ));
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "个性签名已更新");
+            response.put("userId", user.getUserId());
+            response.put("signature", user.getSignature());
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
         }
@@ -273,14 +242,37 @@ public class UserController {
             String avatar = body.get("avatar");
             String signature = body.get("signature");
             User user = userService.updateProfile(userId, avatar, signature);
-            return ResponseEntity.ok(Map.of(
-                    "message", "个人资料已更新",
-                    "userId", user.getUserId(),
-                    "avatar", user.getAvatar(),
-                    "signature", user.getSignature()
-            ));
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "个人资料已更新");
+            response.put("userId", user.getUserId());
+            response.put("avatar", user.getAvatar());
+            response.put("signature", user.getSignature());
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
         }
+    }
+
+    private Map<String, Object> toUserSummaryResponse(User user) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("userId", user.getUserId());
+        response.put("username", user.getUsername());
+        response.put("isOnline", user.getOnline());
+        response.put("isAdmin", user.getAdmin());
+        response.put("isMuted", user.getMuted());
+        response.put("avatar", user.getAvatar());
+        response.put("signature", user.getSignature());
+        return response;
+    }
+
+    private Map<String, Object> toOnlineUserResponse(User user) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("userId", user.getUserId());
+        response.put("username", user.getUsername());
+        response.put("isAdmin", user.getAdmin());
+        response.put("isMuted", user.getMuted());
+        response.put("avatar", user.getAvatar());
+        response.put("signature", user.getSignature());
+        return response;
     }
 }

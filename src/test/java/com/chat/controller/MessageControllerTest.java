@@ -67,4 +67,36 @@ class MessageControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("请求处理失败"));
     }
+
+    @Test
+    void getMessageByIdShouldSucceedWhenRecallTimeIsNull() throws Exception {
+        Message message = Message.builder()
+                .messageId("m1")
+                .roomId("r1")
+                .senderId("u1")
+                .senderName("user")
+                .content("hello")
+                .type(MessageType.CHAT)
+                .isRecalled(false)
+                .build();
+        message.setRecallTime(null);
+        message.setCreateTime(LocalDateTime.of(2026, 3, 5, 12, 0, 0));
+        when(messageService.getMessageById("m1")).thenReturn(java.util.Optional.of(message));
+
+        mockMvc.perform(get("/api/messages/m1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.messageId").value("m1"));
+    }
+
+    @Test
+    void searchMessagesShouldSucceedWhenOptionalFiltersAreMissing() throws Exception {
+        when(messageService.searchAllMessages("hello")).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/messages/search").param("keyword", "hello"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.keyword").value("hello"))
+                .andExpect(jsonPath("$.returnedCount").value(0));
+
+        verify(messageService).searchAllMessages("hello");
+    }
 }

@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,15 +41,15 @@ public class RoomController {
             }
 
             Room room = roomService.createRoom(name, creator, description, maxUsers, isPrivate, password);
-            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
-                    "message", "房间创建成功",
-                    "roomId", room.getRoomId(),
-                    "name", room.getName(),
-                    "description", room.getDescription(),
-                    "maxUsers", room.getMaxUsers(),
-                    "isPrivate", room.getIsPrivate(),
-                    "isActive", room.getIsActive()
-            ));
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "房间创建成功");
+            response.put("roomId", room.getRoomId());
+            response.put("name", room.getName());
+            response.put("description", room.getDescription());
+            response.put("maxUsers", room.getMaxUsers());
+            response.put("isPrivate", room.getIsPrivate());
+            response.put("isActive", room.getIsActive());
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
         }
@@ -58,16 +59,7 @@ public class RoomController {
     public ResponseEntity<?> getRoomById(@PathVariable String roomId) {
         try {
             return roomService.getRoomById(roomId)
-                    .map(room -> ResponseEntity.ok(Map.of(
-                            "roomId", room.getRoomId(),
-                            "name", room.getName(),
-                            "creator", room.getCreator(),
-                            "description", room.getDescription(),
-                            "maxUsers", room.getMaxUsers(),
-                            "isPrivate", room.getIsPrivate(),
-                            "isActive", room.getIsActive(),
-                            "createTime", room.getCreateTime()
-                    )))
+                    .map(room -> ResponseEntity.ok(toRoomDetailResponse(room)))
                     .orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
@@ -80,16 +72,7 @@ public class RoomController {
             List<Room> rooms = roomService.getAllRooms();
             return ResponseEntity.ok(Map.of(
                     "roomCount", rooms.size(),
-                    "rooms", rooms.stream().map(room -> Map.of(
-                            "roomId", room.getRoomId(),
-                            "name", room.getName(),
-                            "creator", room.getCreator(),
-                            "description", room.getDescription(),
-                            "maxUsers", room.getMaxUsers(),
-                            "isPrivate", room.getIsPrivate(),
-                            "isActive", room.getIsActive(),
-                            "userCount", roomService.getRoomUserCount(room.getRoomId())
-                    )).toList()
+                    "rooms", rooms.stream().map(this::toRoomListItemResponse).toList()
             ));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
@@ -107,13 +90,13 @@ public class RoomController {
             Integer maxUsers = (Integer) body.get("maxUsers");
 
             Room room = roomService.updateRoom(roomId, name, description, maxUsers);
-            return ResponseEntity.ok(Map.of(
-                    "message", "房间更新成功",
-                    "roomId", room.getRoomId(),
-                    "name", room.getName(),
-                    "description", room.getDescription(),
-                    "maxUsers", room.getMaxUsers()
-            ));
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "房间更新成功");
+            response.put("roomId", room.getRoomId());
+            response.put("name", room.getName());
+            response.put("description", room.getDescription());
+            response.put("maxUsers", room.getMaxUsers());
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
         }
@@ -176,7 +159,7 @@ public class RoomController {
     @PutMapping("/{roomId}/privacy")
     @AdminRequired
     public ResponseEntity<?> updatePrivacy(HttpServletRequest request, @PathVariable String roomId,
-                                          @RequestBody Map<String, Object> body) {
+                                           @RequestBody Map<String, Object> body) {
         try {
             String adminUserId = (String) request.getAttribute("userId");
             Boolean isPrivate = (Boolean) body.get("isPrivate");
@@ -192,5 +175,31 @@ public class RoomController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
         }
+    }
+
+    private Map<String, Object> toRoomDetailResponse(Room room) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("roomId", room.getRoomId());
+        response.put("name", room.getName());
+        response.put("creator", room.getCreator());
+        response.put("description", room.getDescription());
+        response.put("maxUsers", room.getMaxUsers());
+        response.put("isPrivate", room.getIsPrivate());
+        response.put("isActive", room.getIsActive());
+        response.put("createTime", room.getCreateTime());
+        return response;
+    }
+
+    private Map<String, Object> toRoomListItemResponse(Room room) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("roomId", room.getRoomId());
+        response.put("name", room.getName());
+        response.put("creator", room.getCreator());
+        response.put("description", room.getDescription());
+        response.put("maxUsers", room.getMaxUsers());
+        response.put("isPrivate", room.getIsPrivate());
+        response.put("isActive", room.getIsActive());
+        response.put("userCount", roomService.getRoomUserCount(room.getRoomId()));
+        return response;
     }
 }
