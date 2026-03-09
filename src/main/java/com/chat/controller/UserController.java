@@ -217,7 +217,7 @@ public class UserController {
                                            @RequestBody Map<String, String> body) {
         try {
             String currentUserId = (String) request.getAttribute("userId");
-            if (!currentUserId.equals(userId)) {
+            if (currentUserId == null || !currentUserId.equals(userId)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "只能修改自己的头像"));
             }
 
@@ -238,7 +238,7 @@ public class UserController {
                                              @RequestBody Map<String, String> body) {
         try {
             String currentUserId = (String) request.getAttribute("userId");
-            if (!currentUserId.equals(userId)) {
+            if (currentUserId == null || !currentUserId.equals(userId)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "只能修改自己的个性签名"));
             }
 
@@ -259,7 +259,7 @@ public class UserController {
                                            @RequestBody Map<String, String> body) {
         try {
             String currentUserId = (String) request.getAttribute("userId");
-            if (!currentUserId.equals(userId)) {
+            if (currentUserId == null || !currentUserId.equals(userId)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "只能修改自己的资料"));
             }
 
