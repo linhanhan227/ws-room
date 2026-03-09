@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -60,13 +61,13 @@ public class AdminController {
             }
 
             User user = adminService.muteUser(userId, adminUserId, minutes);
-            return ResponseEntity.ok(Map.of(
-                    "message", "用户已被禁言",
-                    "userId", user.getUserId(),
-                    "username", user.getUsername(),
-                    "isMuted", user.getMuted(),
-                    "mutedUntil", user.getMutedUntil()
-            ));
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "用户已被禁言");
+            response.put("userId", user.getUserId());
+            response.put("username", user.getUsername());
+            response.put("isMuted", user.getMuted());
+            response.put("mutedUntil", user.getMutedUntil());
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
         }
