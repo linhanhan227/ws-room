@@ -56,10 +56,24 @@ class UserControllerTest {
     }
 
     @Test
-    void getUserByIdShouldReturnBadRequestForInvalidFormat() {
-        ResponseEntity<?> response = userController.getUserById("701802490894697646652258746863264056:");
+    void getUserByIdShouldReturnBadRequestForNonNumericId() {
+        ResponseEntity<?> response = userController.getUserById("abc123");
 
         assertEquals(400, response.getStatusCode().value());
+        @SuppressWarnings("unchecked")
+        var body = (Map<String, String>) response.getBody();
+        assertEquals("用户ID格式无效", body.get("error"));
+        verifyNoInteractions(userService);
+    }
+
+    @Test
+    void getUserByIdShouldReturnBadRequestForTooLongNumericId() {
+        ResponseEntity<?> response = userController.getUserById("1234567890123456789012345678901234567890");
+
+        assertEquals(400, response.getStatusCode().value());
+        @SuppressWarnings("unchecked")
+        var body = (Map<String, String>) response.getBody();
+        assertEquals("用户ID格式无效", body.get("error"));
         verifyNoInteractions(userService);
     }
 
