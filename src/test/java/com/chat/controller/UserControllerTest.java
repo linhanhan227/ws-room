@@ -15,6 +15,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
@@ -53,6 +54,29 @@ class UserControllerTest {
         var body = (java.util.Map<String, Object>) response.getBody();
         assertEquals("http://api.tos.tiecode.org.cn/a.jpg", body.get("avatar"));
         assertEquals("hello", body.get("signature"));
+    }
+
+    @Test
+    void getUserByIdShouldSucceedWhenRoomIdIsNull() {
+        User user = User.builder()
+                .userId("123456")
+                .username("test")
+                .isOnline(true)
+                .isAdmin(false)
+                .isMuted(false)
+                .roomId(null)
+                .avatar("http://api.tos.tiecode.org.cn/a.jpg")
+                .signature("hello")
+                .build();
+        when(userService.getUserById("123456")).thenReturn(Optional.of(user));
+
+        ResponseEntity<?> response = userController.getUserById("123456");
+
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        @SuppressWarnings("unchecked")
+        var body = (Map<String, Object>) response.getBody();
+        assertNull(body.get("roomId"));
     }
 
     @Test

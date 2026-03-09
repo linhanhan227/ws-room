@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -75,16 +76,18 @@ public class UserController {
                 return ResponseEntity.badRequest().body(Map.of("error", "用户ID格式无效"));
             }
             return userService.getUserById(userId)
-                    .map(user -> ResponseEntity.ok(Map.of(
-                            "userId", user.getUserId(),
-                            "username", user.getUsername(),
-                            "isOnline", user.getOnline(),
-                            "isAdmin", user.getAdmin(),
-                            "isMuted", user.getMuted(),
-                            "roomId", user.getRoomId(),
-                            "avatar", user.getAvatar(),
-                            "signature", user.getSignature()
-                    )))
+                    .map(user -> {
+                        Map<String, Object> response = new HashMap<>();
+                        response.put("userId", user.getUserId());
+                        response.put("username", user.getUsername());
+                        response.put("isOnline", user.getOnline());
+                        response.put("isAdmin", user.getAdmin());
+                        response.put("isMuted", user.getMuted());
+                        response.put("roomId", user.getRoomId());
+                        response.put("avatar", user.getAvatar());
+                        response.put("signature", user.getSignature());
+                        return ResponseEntity.ok(response);
+                    })
                     .orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
