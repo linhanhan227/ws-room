@@ -50,7 +50,7 @@ public class RoomController {
                     "isActive", room.getIsActive()
             ));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
         }
     }
 
@@ -70,7 +70,7 @@ public class RoomController {
                     )))
                     .orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
         }
     }
 
@@ -92,7 +92,7 @@ public class RoomController {
                     )).toList()
             ));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
         }
     }
 
@@ -115,7 +115,7 @@ public class RoomController {
                     "maxUsers", room.getMaxUsers()
             ));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
         }
     }
 
@@ -130,7 +130,7 @@ public class RoomController {
                     "roomId", roomId
             ));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
         }
     }
 
@@ -145,7 +145,7 @@ public class RoomController {
                     "isValid", isValid
             ));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
         }
     }
 
@@ -169,7 +169,7 @@ public class RoomController {
                     "isPrivate", room.getIsPrivate()
             ));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
         }
     }
 
@@ -190,7 +190,7 @@ public class RoomController {
                     "hasPassword", room.getPassword() != null && !room.getPassword().isEmpty()
             ));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
         }
     }
 }

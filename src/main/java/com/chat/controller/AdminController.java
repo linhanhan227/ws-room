@@ -40,7 +40,7 @@ public class AdminController {
                     "username", user.getUsername()
             ));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
         }
     }
 
@@ -68,7 +68,7 @@ public class AdminController {
                     "mutedUntil", user.getMutedUntil()
             ));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
         }
     }
 
@@ -91,7 +91,7 @@ public class AdminController {
                     "isMuted", user.getMuted()
             ));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
         }
     }
 
@@ -118,7 +118,7 @@ public class AdminController {
                     "isAdmin", user.getAdmin()
             ));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
         }
     }
 
@@ -134,7 +134,7 @@ public class AdminController {
                     "roomId", roomId
             ));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
         }
     }
 
@@ -152,7 +152,7 @@ public class AdminController {
                     "totalMessages", totalMessages
             ));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
         }
     }
 }

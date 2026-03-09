@@ -37,7 +37,7 @@ public class MessageController {
                     )))
                     .orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
         }
     }
 
@@ -58,7 +58,7 @@ public class MessageController {
                     )).toList()
             ));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
         }
     }
 
@@ -81,7 +81,7 @@ public class MessageController {
                     )).toList()
             ));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
         }
     }
 
@@ -103,7 +103,7 @@ public class MessageController {
                     )))
                     .orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
         }
     }
 
@@ -151,7 +151,7 @@ public class MessageController {
                     )).toList()
             ));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "请求处理失败"));
         }
     }
 }
