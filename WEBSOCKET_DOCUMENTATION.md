@@ -140,6 +140,69 @@ ws://localhost:8080/ws/chat
 | 房间密码错误 | 私有房间密码错误 | - |
 | 房间已满 | 房间用户数已达上限 | - |
 
+#### 请求示例
+
+**加入公开房间**
+```json
+{
+  "type": "JOIN",
+  "roomId": "1"
+}
+```
+
+**加入私有房间**
+```json
+{
+  "type": "JOIN",
+  "roomId": "2",
+  "password": "room123456"
+}
+```
+
+#### 响应示例
+
+**成功加入房间**
+```json
+{
+  "type": "JOIN",
+  "content": "成功加入房间: 测试聊天室",
+  "roomId": "1",
+  "timestamp": 1677648000000
+}
+```
+
+**系统广播（其他用户收到）**
+```json
+{
+  "type": "SYSTEM",
+  "content": "张三 加入了房间",
+  "roomId": "1",
+  "timestamp": 1677648000000
+}
+```
+
+**历史消息示例**
+```json
+{
+  "type": "CHAT",
+  "content": "大家好！",
+  "sender": "李四",
+  "roomId": "1",
+  "messageId": "1234567890",
+  "timestamp": 1677647900000,
+  "isRecalled": false
+}
+```
+
+**错误响应示例**
+```json
+{
+  "type": "ERROR",
+  "content": "房间密码错误",
+  "timestamp": 1677648000000
+}
+```
+
 ---
 
 ### 2. LEAVE - 离开房间
@@ -186,6 +249,45 @@ ws://localhost:8080/ws/chat
 | 错误信息 | 说明 |
 |---------|------|
 | 您不在任何房间中 | 当前用户未加入任何房间 |
+
+#### 请求示例
+
+```json
+{
+  "type": "LEAVE"
+}
+```
+
+#### 响应示例
+
+**成功离开房间**
+```json
+{
+  "type": "SYSTEM",
+  "content": "张三 离开了房间",
+  "roomId": "1",
+  "timestamp": 1677648100000
+}
+```
+
+**系统广播（其他用户收到）**
+```json
+{
+  "type": "SYSTEM",
+  "content": "张三 离开了房间",
+  "roomId": "1",
+  "timestamp": 1677648100000
+}
+```
+
+**错误响应示例**
+```json
+{
+  "type": "ERROR",
+  "content": "您不在任何房间中",
+  "timestamp": 1677648100000
+}
+```
 
 ---
 
@@ -267,6 +369,47 @@ ws://localhost:8080/ws/chat
 | 您已被禁言 | 用户被禁言，无法发送消息 | 等待禁言结束或联系管理员 |
 | 消息包含敏感词 | 消息包含敏感词 | 移除敏感词后重新发送 |
 | 消息内容不能为空 | content参数为空 | 提供有效的消息内容 |
+
+#### 请求示例
+
+```json
+{
+  "type": "CHAT",
+  "content": "大家好！"
+}
+```
+
+#### 响应示例
+
+**成功发送消息**
+```json
+{
+  "type": "CHAT",
+  "content": "大家好！",
+  "sender": "张三",
+  "roomId": "1",
+  "messageId": "1234567890",
+  "timestamp": 1677648200000,
+  "isRecalled": false
+}
+```
+
+**错误响应示例**
+```json
+{
+  "type": "ERROR",
+  "content": "请先加入房间",
+  "timestamp": 1677648200000
+}
+```
+
+```json
+{
+  "type": "ERROR",
+  "content": "消息包含敏感词",
+  "timestamp": 1677648200000
+}
+```
 
 ---
 
@@ -368,6 +511,59 @@ ws://localhost:8080/ws/chat
 | 房间名称已存在 | 房间名称已被使用 | 使用不同的房间名称 |
 | 创建房间失败 | 服务器内部错误 | 稍后重试或联系管理员 |
 
+#### 请求示例
+
+**创建公开房间**
+```json
+{
+  "type": "CREATE_ROOM",
+  "content": "技术交流群",
+  "description": "讨论技术话题",
+  "maxUsers": 100,
+  "isPrivate": false
+}
+```
+
+**创建私有房间**
+```json
+{
+  "type": "CREATE_ROOM",
+  "content": "私密讨论组",
+  "description": "内部讨论",
+  "maxUsers": 50,
+  "isPrivate": true,
+  "password": "secret123"
+}
+```
+
+#### 响应示例
+
+**成功创建房间**
+```json
+{
+  "type": "SYSTEM",
+  "content": "房间 [技术交流群] 创建成功",
+  "timestamp": 1677648300000
+}
+```
+
+**错误响应示例**
+```json
+{
+  "type": "ERROR",
+  "content": "只有管理员才能创建房间",
+  "timestamp": 1677648300000
+}
+```
+
+```json
+{
+  "type": "ERROR",
+  "content": "房间名称已存在",
+  "timestamp": 1677648300000
+}
+```
+
 ---
 
 ### 5. DELETE_ROOM - 删除房间（管理员）
@@ -428,6 +624,43 @@ ws://localhost:8080/ws/chat
 | 只有管理员才能删除房间 | 当前用户不是管理员 | 使用管理员账户登录 |
 | 请指定房间ID | 未提供roomId参数 | 提供要删除的房间ID |
 | 房间不存在 | 指定的房间不存在或已被删除 | 检查房间ID是否正确 |
+
+#### 请求示例
+
+```json
+{
+  "type": "DELETE_ROOM",
+  "roomId": "1"
+}
+```
+
+#### 响应示例
+
+**成功删除房间**
+```json
+{
+  "type": "SYSTEM",
+  "content": "房间已删除",
+  "timestamp": 1677648400000
+}
+```
+
+**错误响应示例**
+```json
+{
+  "type": "ERROR",
+  "content": "只有管理员才能删除房间",
+  "timestamp": 1677648400000
+}
+```
+
+```json
+{
+  "type": "ERROR",
+  "content": "房间不存在",
+  "timestamp": 1677648400000
+}
+```
 
 ---
 
@@ -512,6 +745,42 @@ ws://localhost:8080/ws/chat
 - 说明：房间当前用户数
 - 范围：0-maxUsers
 - 约束：userCount <= maxUsers
+
+#### 请求示例
+
+```json
+{
+  "type": "ROOM_LIST"
+}
+```
+
+#### 响应示例
+
+**成功获取房间列表**
+```json
+{
+  "type": "ROOM_LIST",
+  "rooms": [
+    {
+      "roomId": "1",
+      "name": "技术交流群",
+      "description": "讨论技术话题",
+      "maxUsers": 100,
+      "isPrivate": false,
+      "userCount": 45
+    },
+    {
+      "roomId": "2",
+      "name": "私密讨论组",
+      "description": "内部讨论",
+      "maxUsers": 50,
+      "isPrivate": true,
+      "userCount": 12
+    }
+  ],
+  "timestamp": 1677648500000
+}
+```
 
 ---
 
@@ -613,6 +882,75 @@ ws://localhost:8080/ws/chat
   - true：用户被禁言，无法发送聊天消息
   - false：用户未被禁言
 
+#### 请求示例
+
+**获取所有在线用户**
+```json
+{
+  "type": "USER_LIST"
+}
+```
+
+**获取指定房间的用户**
+```json
+{
+  "type": "USER_LIST",
+  "roomId": "1"
+}
+```
+
+#### 响应示例
+
+**成功获取用户列表（所有在线用户）**
+```json
+{
+  "type": "USER_LIST",
+  "roomId": null,
+  "users": [
+    {
+      "userId": "1",
+      "username": "张三",
+      "isOnline": true,
+      "isAdmin": true,
+      "isMuted": false
+    },
+    {
+      "userId": "2",
+      "username": "李四",
+      "isOnline": true,
+      "isAdmin": false,
+      "isMuted": false
+    }
+  ],
+  "timestamp": 1677648600000
+}
+```
+
+**成功获取用户列表（指定房间）**
+```json
+{
+  "type": "USER_LIST",
+  "roomId": "1",
+  "users": [
+    {
+      "userId": "1",
+      "username": "张三",
+      "isOnline": true,
+      "isAdmin": true,
+      "isMuted": false
+    },
+    {
+      "userId": "3",
+      "username": "王五",
+      "isOnline": true,
+      "isAdmin": false,
+      "isMuted": true
+    }
+  ],
+  "timestamp": 1677648600000
+}
+```
+
 ---
 
 ### 8. KICK - 踢出用户（管理员）
@@ -676,6 +1014,52 @@ ws://localhost:8080/ws/chat
 | 权限不足 | 当前用户不是管理员 | 使用管理员账户登录 |
 | 请指定被踢用户 | 未提供targetUserId参数 | 提供要踢出的用户ID |
 | 用户不存在 | 指定的用户不存在 | 检查用户ID是否正确 |
+
+#### 请求示例
+
+```json
+{
+  "type": "KICK",
+  "targetUserId": "2"
+}
+```
+
+#### 响应示例
+
+**成功踢出用户**
+```json
+{
+  "type": "SYSTEM",
+  "content": "已将 李四 踢出房间",
+  "timestamp": 1677648700000
+}
+```
+
+**被踢用户收到的系统通知**
+```json
+{
+  "type": "SYSTEM",
+  "content": "您已被管理员踢出房间",
+  "timestamp": 1677648700000
+}
+```
+
+**错误响应示例**
+```json
+{
+  "type": "ERROR",
+  "content": "权限不足",
+  "timestamp": 1677648700000
+}
+```
+
+```json
+{
+  "type": "ERROR",
+  "content": "用户不存在",
+  "timestamp": 1677648700000
+}
+```
 
 ---
 
@@ -743,6 +1127,53 @@ ws://localhost:8080/ws/chat
 | 请指定被禁言用户 | 未提供targetUserId参数 | 提供要禁言的用户ID |
 | 用户不存在 | 指定的用户不存在 | 检查用户ID是否正确 |
 
+#### 请求示例
+
+**禁言用户30分钟（默认）**
+```json
+{
+  "type": "MUTE",
+  "targetUserId": "2"
+}
+```
+
+**禁言用户60分钟**
+```json
+{
+  "type": "MUTE",
+  "targetUserId": "2",
+  "muteMinutes": 60
+}
+```
+
+#### 响应示例
+
+**成功禁言用户**
+```json
+{
+  "type": "SYSTEM",
+  "content": "已将 李四 禁言 30 分钟",
+  "timestamp": 1677648800000
+}
+```
+
+**错误响应示例**
+```json
+{
+  "type": "ERROR",
+  "content": "权限不足",
+  "timestamp": 1677648800000
+}
+```
+
+```json
+{
+  "type": "ERROR",
+  "content": "用户不存在",
+  "timestamp": 1677648800000
+}
+```
+
 ---
 
 ### 10. UNMUTE - 解除禁言（管理员）
@@ -796,6 +1227,43 @@ ws://localhost:8080/ws/chat
 | 权限不足 | 当前用户不是管理员 | 使用管理员账户登录 |
 | 请指定解除禁言用户 | 未提供targetUserId参数 | 提供要解除禁言的用户ID |
 | 用户不存在 | 指定的用户不存在 | 检查用户ID是否正确 |
+
+#### 请求示例
+
+```json
+{
+  "type": "UNMUTE",
+  "targetUserId": "2"
+}
+```
+
+#### 响应示例
+
+**成功解除禁言**
+```json
+{
+  "type": "SYSTEM",
+  "content": "已解除 李四 的禁言",
+  "timestamp": 1677648900000
+}
+```
+
+**错误响应示例**
+```json
+{
+  "type": "ERROR",
+  "content": "权限不足",
+  "timestamp": 1677648900000
+}
+```
+
+```json
+{
+  "type": "ERROR",
+  "content": "用户不存在",
+  "timestamp": 1677648900000
+}
+```
 
 ---
 
@@ -870,6 +1338,56 @@ ws://localhost:8080/ws/chat
 | 撤回失败: 消息发送时间已超过2分钟 | 消息发送时间超过2分钟 | 只能撤回2分钟内的消息 |
 | 消息不存在 | 指定的消息不存在 | 检查消息ID是否正确 |
 
+#### 请求示例
+
+```json
+{
+  "type": "RECALL",
+  "messageId": "1234567890"
+}
+```
+
+#### 响应示例
+
+**成功撤回消息**
+```json
+{
+  "type": "RECALL",
+  "messageId": "1234567890",
+  "content": "消息已撤回",
+  "roomId": "1",
+  "timestamp": 1677649000000
+}
+```
+
+**系统广播（房间内所有用户收到）**
+```json
+{
+  "type": "RECALL",
+  "messageId": "1234567890",
+  "content": "消息已撤回",
+  "roomId": "1",
+  "timestamp": 1677649000000
+}
+```
+
+**错误响应示例**
+```json
+{
+  "type": "ERROR",
+  "content": "撤回失败: 只能撤回自己发送的消息",
+  "timestamp": 1677649000000
+}
+```
+
+```json
+{
+  "type": "ERROR",
+  "content": "撤回失败: 消息发送时间已超过2分钟",
+  "timestamp": 1677649000000
+}
+```
+
 ---
 
 ### 12. ADMIN - 设置管理员权限（管理员）
@@ -936,6 +1454,63 @@ ws://localhost:8080/ws/chat
 | 请指定是否为管理员 | 未提供isAdmin参数 | 提供isAdmin参数（true或false） |
 | 用户不存在 | 指定的用户不存在 | 检查用户ID是否正确 |
 | 不能取消最后一个管理员 | 系统中只有一个管理员时不能取消 | 先设置其他用户为管理员 |
+
+#### 请求示例
+
+**设置用户为管理员**
+```json
+{
+  "type": "ADMIN",
+  "targetUserId": "2",
+  "isAdmin": true
+}
+```
+
+**取消用户管理员权限**
+```json
+{
+  "type": "ADMIN",
+  "targetUserId": "2",
+  "isAdmin": false
+}
+```
+
+#### 响应示例
+
+**成功设置管理员**
+```json
+{
+  "type": "SYSTEM",
+  "content": "李四 已成为管理员",
+  "timestamp": 1677649100000
+}
+```
+
+**成功取消管理员**
+```json
+{
+  "type": "SYSTEM",
+  "content": "李四 已取消管理员权限",
+  "timestamp": 1677649100000
+}
+```
+
+**错误响应示例**
+```json
+{
+  "type": "ERROR",
+  "content": "权限不足",
+  "timestamp": 1677649100000
+}
+```
+
+```json
+{
+  "type": "ERROR",
+  "content": "不能取消最后一个管理员",
+  "timestamp": 1677649100000
+}
+```
 
 ---
 
@@ -1028,6 +1603,62 @@ ws://localhost:8080/ws/chat
 |---------|------|---------|
 | 文本不能为空 | content参数为空 | 提供要检测的文本内容 |
 
+#### 请求示例
+
+```json
+{
+  "type": "CHECK_SENSITIVE",
+  "content": "这是一个测试文本"
+}
+```
+
+#### 响应示例
+
+**不包含敏感词**
+```json
+{
+  "type": "CHECK_SENSITIVE",
+  "content": "这是一个测试文本",
+  "contains": false,
+  "detectedWords": [],
+  "filteredText": "这是一个测试文本",
+  "timestamp": 1677649200000
+}
+```
+
+**包含敏感词**
+```json
+{
+  "type": "CHECK_SENSITIVE",
+  "content": "这是一个敏感词测试",
+  "contains": true,
+  "detectedWords": ["敏感词"],
+  "filteredText": "这是一个***测试",
+  "timestamp": 1677649200000
+}
+```
+
+**包含多个敏感词**
+```json
+{
+  "type": "CHECK_SENSITIVE",
+  "content": "这是敏感词1和敏感词2的文本",
+  "contains": true,
+  "detectedWords": ["敏感词1", "敏感词2"],
+  "filteredText": "这是***和***的文本",
+  "timestamp": 1677649200000
+}
+```
+
+**错误响应示例**
+```json
+{
+  "type": "ERROR",
+  "content": "文本不能为空",
+  "timestamp": 1677649200000
+}
+```
+
 ---
 
 ### 14. FILTER_SENSITIVE - 过滤敏感词
@@ -1102,6 +1733,56 @@ ws://localhost:8080/ws/chat
 | 错误信息 | 说明 | 解决方法 |
 |---------|------|---------|
 | 文本不能为空 | content参数为空 | 提供要过滤的文本内容 |
+
+#### 请求示例
+
+```json
+{
+  "type": "FILTER_SENSITIVE",
+  "content": "这是一个测试文本"
+}
+```
+
+#### 响应示例
+
+**不包含敏感词**
+```json
+{
+  "type": "FILTER_SENSITIVE",
+  "content": "这是一个测试文本",
+  "filteredText": "这是一个测试文本",
+  "timestamp": 1677649300000
+}
+```
+
+**包含敏感词**
+```json
+{
+  "type": "FILTER_SENSITIVE",
+  "content": "这是一个敏感词测试",
+  "filteredText": "这是一个***测试",
+  "timestamp": 1677649300000
+}
+```
+
+**包含多个敏感词**
+```json
+{
+  "type": "FILTER_SENSITIVE",
+  "content": "这是敏感词1和敏感词2的文本",
+  "filteredText": "这是***和***的文本",
+  "timestamp": 1677649300000
+}
+```
+
+**错误响应示例**
+```json
+{
+  "type": "ERROR",
+  "content": "文本不能为空",
+  "timestamp": 1677649300000
+}
+```
 
 ---
 
